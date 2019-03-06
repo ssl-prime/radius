@@ -1,7 +1,6 @@
 package service
 
 import (
-	"fmt"
 	"net/http"
 	"radius/api/util"
 
@@ -20,7 +19,7 @@ type RepoInfo struct {
 	//openIssues             aqua.GET  `url:"/openissues"`
 }
 
-//GetOpenIssues ...
+//GetOpenIssues ...  this is passing url in body of a request
 func (atdn *RepoInfo) GetOpenIssues(j aqua.Aide) (response interface{}, err error) {
 	var (
 		repoOwner string
@@ -32,7 +31,7 @@ func (atdn *RepoInfo) GetOpenIssues(j aqua.Aide) (response interface{}, err erro
 	return
 }
 
-//Form ...
+//Form ... this will accept the form and process the data for the given url
 func (atdn *RepoInfo) Form(j aqua.Aide) (response interface{}, err error) {
 	j.LoadVars()
 	var (
@@ -45,13 +44,14 @@ func (atdn *RepoInfo) Form(j aqua.Aide) (response interface{}, err error) {
 		} else {
 			response = err.Error()
 		}
+	} else {
+		response = `empty url`
 	}
 	return
 }
 
-//GetFrontend ...
+//GetFrontend ... this will return basic ui for inserting github url
 func (atdn *RepoInfo) GetFrontend(j aqua.Aide) (response interface{}, err error) {
-	fmt.Println(j.Request.Method)
 	j.LoadVars()
 	w := j.Response
 	r := j.Request
