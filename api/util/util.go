@@ -67,12 +67,23 @@ func GetOpenIssues(j aqua.Aide, repoOwner, repoName string) (interface{}, error)
 		err    error
 		resp   interface{}
 	)
-	issuesURL := `https://api.github.com/repos/` + repoOwner + `/` + repoName + `/issues`
-	if issues, err = getIssues(issuesURL); err == nil {
-		if err = processIssuesInfo(issues, repoOwner, repoName); err == nil {
-			resp, err = OpenIssues(j, repoOwner, repoName)
+	page := 1
+	for {
+		no := strconv.Itoa(page)
+		issuesURL := `https://api.github.com/repos/` + repoOwner + `/` + repoName + `/issues?page=` + no
+		if issues, err = getIssues(issuesURL); err == nil {
+			if len(issues) != 0 {
+				err = processIssuesInfo(issues, repoOwner, repoName)
+			} else {
+				break
+			}
 		}
+		page++
 	}
+	if err == nil {
+		resp, err = OpenIssues(j, repoOwner, repoName)
+	}
+
 	return resp, err
 }
 
