@@ -77,7 +77,7 @@ func GetOpenIssues(j aqua.Aide, repoOwner, repoName string) (interface{}, error)
 			if len(issues) == 0 {
 				break
 			} else {
-				go processIssuesInfo(issues, repoOwner, repoName)
+				err = processIssuesInfo(issues, repoOwner, repoName)
 			}
 		} else {
 			break
@@ -146,6 +146,7 @@ func UpdateOrInsertIssues(issueSlice []model.TrackIssueInfo) error {
 		if stmt, err = db.Prepare(upateOrInsert); err == nil {
 			stmt.Exec(vals...)
 			stmt.Close()
+			db.Close()
 		} else {
 			err = errors.New("update or insert error" + err.Error())
 		}
@@ -188,6 +189,7 @@ func Get24hIssues(j aqua.Aide, repoOwner, repoName string) (interface{}, error) 
 					log.Println("scan error :", err)
 				}
 			}
+			db.Close()
 		} else {
 			err = errors.New("24h qry issue " + err.Error())
 		}
@@ -217,6 +219,7 @@ func GetGT24hLTE7dIssues(j aqua.Aide, repoOwner, repoName string) (interface{}, 
 					log.Println("scan error :", err)
 				}
 			}
+			db.Close()
 		} else {
 			err = errors.New("24h qry issue " + err.Error())
 		}
@@ -245,6 +248,7 @@ func GetGT7dOpenIssues(j aqua.Aide, repoOwner, repoName string) (interface{}, er
 					log.Println("scan error :", err)
 				}
 			}
+			db.Close()
 		} else {
 			err = errors.New("24h qry issue " + err.Error())
 		}
