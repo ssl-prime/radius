@@ -70,20 +70,25 @@ func GetOpenIssues(j aqua.Aide, repoOwner, repoName string) (interface{}, error)
 	page := 1
 	for {
 		no := strconv.Itoa(page)
-		issuesURL := `https://api.github.com/repos/` + repoOwner + `/` + repoName + `/issues?page=` + no
+		issuesURL := `https://api.github.com/repos/` + repoOwner + `/` +
+			repoName + `/issues?page=` + no +
+			`&client_id=xxxxx&client_secret=yyyy`
 		if issues, err = getIssues(issuesURL); err == nil {
-			if len(issues) != 0 {
-				err = processIssuesInfo(issues, repoOwner, repoName)
-			} else {
+			if len(issues) == 0 {
 				break
+			} else {
+				go processIssuesInfo(issues, repoOwner, repoName)
 			}
+		} else {
+			break
 		}
 		page++
 	}
 	if err == nil {
 		resp, err = OpenIssues(j, repoOwner, repoName)
+	} else {
+		resp = "free api limit exceeded"
 	}
-
 	return resp, err
 }
 
@@ -96,7 +101,9 @@ func getIssues(issuesURL string) ([]model.IssuesResp, error) {
 	)
 	if resp, err = http.Get(issuesURL); err == nil {
 		if respBody, err = ioutil.ReadAll(resp.Body); err == nil {
-			err = json.Unmarshal(respBody, &issues)
+			if err = json.Unmarshal(respBody, &issues); err != nil {
+				err = errors.New("free allowed api call exceeded")
+			}
 		}
 	} else {
 		err = errors.New("request error: " + err.Error())
